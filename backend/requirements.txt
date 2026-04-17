@@ -1,0 +1,8 @@
+express
+mongoose
+dotenv
+cors
+bcryptjs
+jsonwebtoken
+@google/generative-ai
+nodemon (dev-dependency)

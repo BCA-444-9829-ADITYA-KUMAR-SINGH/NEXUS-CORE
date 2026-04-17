@@ -1,0 +1,160 @@
+/* Custom Properties for consistency */
+:root {
+  --primary-gradient: linear-gradient(135deg, #0d6efd, #6610f2);
+  --dark-glass: rgba(17, 17, 17, 0.9);
+  --light-glass: rgba(255, 255, 255, 0.8);
+  --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  overflow-x: hidden;
+}
+
+/* Logo */
+.logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px; /* Modern squircle shape */
+  background: var(--primary-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 800;
+  box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+}
+
+/* Login Circle - Fixed the logic to show initial properly */
+.login-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #111;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  cursor: pointer;
+  z-index: 2000;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  transition: var(--transition);
+  border: 2px solid transparent;
+}
+
+.login-circle:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.3);
+  border-color: #0d6efd;
+}
+
+/* Hero Section */
+.hero {
+  position: relative;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), 
+              url("https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&q=80");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed; /* Parallax effect */
+  color: white;
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.hero h1 {
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 20px;
+  background: linear-gradient(to right, #fff, #cbd5e1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+  max-width: 700px;
+  margin: 0 auto;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+}
+
+/* AI Tool Cards */
+.ai-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 30px;
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  transition: var(--transition);
+  text-align: center;
+  height: 100%;
+}
+
+.ai-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 20px 40px rgba(13, 110, 253, 0.1);
+  border-color: #0d6efd;
+}
+
+.ai-icon {
+  font-size: 50px;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+/* Custom UI Elements */
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.section-sub {
+  font-size: 1.1rem;
+  color: #64748b;
+  margin-bottom: 50px;
+}
+
+.btn-signup {
+  background: var(--primary-gradient);
+  border: none;
+  border-radius: 50px;
+  padding: 12px 30px;
+  font-weight: 600;
+  transition: var(--transition);
+  box-shadow: 0 4px 15px rgba(13, 110, 253, 0.2);
+}
+
+.btn-signup:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4);
+  color: white;
+}
+
+/* Footer */
+footer {
+  background: #0f172a;
+  color: #94a3b8;
+  padding: 60px 20px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2.5rem; }
+  .hero { min-height: 60vh; }
+  .login-circle { top: 10px; right: 10px; width: 45px; height: 45px; }
+}

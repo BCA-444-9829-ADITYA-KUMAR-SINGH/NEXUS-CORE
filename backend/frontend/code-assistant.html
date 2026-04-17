@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nexus | Terminal</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet"/>
+    
+    <link rel="stylesheet" href="chatstyle.css">
+</head>
+<body>
+
+<div class="login-circle" onclick="goToProfile()" title="View Profile">
+    <span id="topAvatar">?</span>
+</div>
+
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand-section">
+            <div class="brand-logo">
+                <i class="bi bi-cpu-fill"></i> NEXUS
+            </div>
+            <div class="node-status">
+                <span class="pulse-dot"></span> Node: Active
+            </div>
+        </div>
+        
+        <button class="btn-new-snippet" onclick="startNewChat()">
+            <i class="bi bi-plus-lg"></i> New Session
+        </button>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-link" onclick="goHome()"><i class="bi bi-house-door"></i> Dashboard</div>
+            <div class="nav-link" onclick="deleteLastChat()"><i class="bi bi-arrow-counterclockwise"></i> Undo</div>
+            <div class="nav-link danger" onclick="deleteAllChat()"><i class="bi bi-trash3"></i> Delete log</div>
+        </nav>
+
+        <div class="history-container" id="chatHistory">
+            </div>
+
+        <div class="user-panel">
+            <div class="user-info-click" onclick="goToProfile()" title="Profile Settings">
+                <div class="user-avatar" id="sidebarAvatar">G</div>
+                <div class="user-meta">
+                    <span id="profileName" class="user-name text-truncate">Guest</span>
+                    <span class="user-role">Developer Node</span>
+                </div>
+            </div>
+            <div class="logout-trigger" onclick="handleLogout()" title="Logout">
+                <i class="bi bi-box-arrow-right"></i>
+            </div>
+        </div>
+    </aside>
+
+    <main class="terminal-core">
+        <header class="terminal-header">
+            <div class="path-indicator">
+                <i class="bi bi-folder2-open"></i> root / ai-core / code-assistant
+            </div>
+            <div class="header-tools">
+                <span class="badge">v3.0.1-flash</span>
+            </div>
+        </header>
+
+        <div id="chatContainer" class="message-vault">
+            <div class="msg-group">
+                <div class="bubble system-bubble">
+                    <span class="tag">SYSTEM</span> Environment initialized. Ready for technical input.
+                </div>
+            </div>
+        </div>
+
+        <footer class="terminal-input-section">
+            <div class="input-nexus">
+                <textarea id="userInput" placeholder="Paste snippet or describe logic..." rows="1"></textarea>
+                <button class="send-trigger" onclick="sendMessage()">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </button>
+            </div>
+            <div class="input-footer">
+                <div class="shortcut-hint">Double [Enter] to Execute Sequence</div>
+                <div id="charCount" class="counter">0 chars</div>
+            </div>
+        </footer>
+    </main>
+</div>
+
+<script>
+    /* ============================================================
+       1. AUTHENTICATION & GLOBAL CONFIG
+       ============================================================ */
+    const token = localStorage.getItem("token");
+    const username = localStorage.getItem("username");
+    
+    let chat = []; // Current session messages
+    let currentChatId = null; // MONGODB TRACKING: Stores the database ID for this session
+    let pastChats = JSON.parse(localStorage.getItem("code_history") || "[]");
+
+    // Guard: Redirect if unauthorized
+    if(!token) window.location.href = "login.html";
+
+    // Setup user identity across UI
+    if(username) {
+        const initial = username.charAt(0).toUpperCase();
+        document.getElementById("profileName").innerText = username;
+        document.getElementById("sidebarAvatar").innerText = initial;
+        document.getElementById("topAvatar").innerText = initial;
+    }
+
+    /* ============================================================
+       2. CORE UI RENDERING
+       ============================================================ */
+    
+    /** Renders the current chat array into the chatContainer */
+    function renderChat() {
+        const container = document.getElementById("chatContainer");
+        container.innerHTML = "";
+        
+        chat.forEach(m => {
+            const group = document.createElement("div");
+            group.className = `msg-group ${m.role === "user" ? "user-side" : ""}`;
+            
+            const bubble = document.createElement("div");
+            bubble.className = `bubble ${m.role === "user" ? "user-bubble" : "ai-bubble"}`;
+            
+            if(m.isStatus) bubble.classList.add('status-bubble');
+            if(m.isError) bubble.classList.add('error-bubble');
+
+            if(m.text.includes("```")) {
+                const parts = m.text.split("```");
+                parts.forEach((p, i) => {
+                    if(i % 2 === 1) {
+                        const pre = document.createElement("pre");
+                        pre.innerText = p.trim();
+                        bubble.appendChild(pre);
+                    } else if(p.trim()) {
+                        const d = document.createElement("div"); 
+                        d.innerText = p;
+                        bubble.appendChild(d);
+                    }
+                });
+            } else { 
+                bubble.innerText = m.text; 
+            }
+
+            group.appendChild(bubble);
+            container.appendChild(group);
+        });
+        container.scrollTop = container.scrollHeight;
+    }
+
+    /** Updates the sidebar with past session links */
+    function renderSidebarHistory() {
+        const hBox = document.getElementById("chatHistory");
+        hBox.innerHTML = "";
+        pastChats.slice().reverse().forEach((session, index) => {
+            const item = document.createElement("div");
+            item.className = "history-link";
+            item.innerHTML = `<i class="bi bi-terminal"></i> Session_${pastChats.length - index}`;
+            item.onclick = () => { chat = [...session]; renderChat(); };
+            hBox.appendChild(item);
+        });
+    }
+
+    /* ============================================================
+       3. API & LOGIC HANDLERS
+       ============================================================ */
+
+    /** Handles sending the message and fetching AI response */
+    async function sendMessage() {
+        const input = document.getElementById("userInput");
+        const message = input.value.trim();
+        if(!message) return;
+
+        chat.push({ role: "user", text: message });
+        input.value = "";
+        renderChat();
+
+        const statusId = Date.now();
+        chat.push({ role: "ai", text: "PROCESSING: Analyzing Logic...", id: statusId, isStatus: true });
+        renderChat();
+
+        try {
+            const res = await fetch("http://localhost:5000/api/ask", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json", 
+                    "Authorization": "Bearer " + token 
+                },
+                // Updated: Sending chatId to sync with MongoDB
+                body: JSON.stringify({ 
+                    prompt: message, 
+                    role: "Senior Developer",
+                    chatId: currentChatId 
+                })
+            });
+            const data = await res.json();
+            
+            // Updated: Store the MongoDB ID returned from the server
+            if(data.chatId) currentChatId = data.chatId;
+
+            chat = chat.filter(m => m.id !== statusId);
+            chat.push({ role: "ai", text: data.reply });
+            
+            pastChats.push([...chat]);
+            localStorage.setItem("code_history", JSON.stringify(pastChats));
+            
+            renderChat();
+            renderSidebarHistory();
+        } catch (err) {
+            chat = chat.filter(m => m.id !== statusId);
+            chat.push({ role: "ai", text: "FATAL ERROR: API_OFFLINE. Check Port 5000.", isError: true });
+            renderChat();
+        }
+    }
+
+    /* ============================================================
+       4. UTILITY FUNCTIONS
+       ============================================================ */
+    function handleLogout() { 
+        if(confirm("Terminate Session?")) { 
+            localStorage.clear(); 
+            location.href="login.html"; 
+        } 
+    }
+    
+    function goToProfile() { window.location.href = "profile.html"; }
+    function goHome() { location.href = "index.html"; }
+    
+    // Updated: Reset currentChatId when starting a new session
+    function startNewChat() { 
+        chat = []; 
+        currentChatId = null; 
+        renderChat(); 
+    }
+
+    function deleteLastChat() { chat.pop(); renderChat(); }
+    
+    function deleteAllChat() { 
+        if(confirm("Purge All Logs?")) { 
+            chat=[]; 
+            pastChats=[]; 
+            currentChatId = null;
+            localStorage.removeItem("code_history"); 
+            renderChat(); 
+            renderSidebarHistory(); 
+        } 
+    }
+
+    let lastEnter = 0;
+    document.getElementById("userInput").addEventListener("keydown", e => {
+        if(e.key === "Enter") {
+            const now = Date.now();
+            if(now - lastEnter < 400) { 
+                e.preventDefault(); 
+                sendMessage(); 
+            }
+            lastEnter = now;
+        }
+    });
+
+    document.getElementById("userInput").addEventListener("input", e => {
+        document.getElementById("charCount").innerText = e.target.value.length + " chars";
+    });
+
+    renderSidebarHistory();
+</script>
+</body>
+</html>

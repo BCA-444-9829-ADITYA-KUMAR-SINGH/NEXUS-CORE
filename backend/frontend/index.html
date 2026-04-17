@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus | Neural Workflow Platform</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #3b82f6;
+            --accent-cyan: #00f2ff;
+            --dark-bg: #0b0f1a;
+            --panel-bg: rgba(30, 41, 59, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        /* --- BACKGROUND EFFECTS --- */
+        .bg-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(80px);
+        }
+
+        /* --- NAVIGATION --- */
+        .navbar {
+            background: rgba(11, 15, 26, 0.8) !important;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 15px 0;
+        }
+
+        .logo-box {
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-cyan));
+            color: white;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-weight: 800;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            padding: 160px 0 100px;
+            text-align: center;
+            background: radial-gradient(circle at top, rgba(59, 130, 246, 0.05), transparent);
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -2px;
+        }
+
+        /* --- AI CARDS --- */
+        .ai-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 40px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            height: 100%;
+        }
+
+        .ai-card.interactive:hover {
+            transform: translateY(-12px);
+            border-color: var(--accent-cyan);
+            background: rgba(30, 41, 59, 0.7);
+            cursor: pointer;
+        }
+
+        .ai-icon {
+            font-size: 2.5rem;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        /* --- ACCESS HUB (Profile & Contact) --- */
+        .access-hub {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 40px;
+            padding: 60px;
+            border: 1px solid var(--glass-border);
+            margin-top: 80px;
+        }
+
+        .hub-link {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            text-decoration: none;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .hub-link:hover {
+            background: var(--primary-blue);
+            transform: scale(1.02);
+        }
+
+        /* --- LOGIN CIRCLE --- */
+        .login-circle {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 60px;
+            height: 60px;
+            border-radius: 20px;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-glow" style="top: 0; right: 0;"></div>
+
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="index.html">
+            <div class="logo-box">NX</div>
+            <span class="ms-3 fw-bold text-white ls-1">NEXUS CORE</span>
+        </a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link text-secondary" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link text-secondary" href="about.html">About</a></li>
+                <li class="nav-item"><a class="nav-link btn btn-primary text-white ms-lg-3 px-4" href="signup.html">Get Started</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <div class="container">
+        <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 mb-4">Nexus Core v3.0</span>
+        <h1>Neural Workflow Platform</h1>
+        <p class="lead text-secondary mt-4 mx-auto" style="max-width: 700px;">
+            A professional AI ecosystem that empowers creativity, productivity, and optimized technical output using modern artificial intelligence.
+        </p>
+    </div>
+</section>
+
+<section class="container my-5 py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-white">Why Choose Nexus?</h2>
+        <p class="text-secondary">Optimized for performance, reliability, and usability.</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="ai-card text-center">
+                <i class="bi bi-lightning ai-icon"></i>
+                <h5 class="text-white">Fast & Intelligent</h5>
+                <p class="text-secondary small">Proprietary neural routing for sub-second latency.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="ai-card text-center">
+                <i class="bi bi-shield-lock ai-icon"></i>
+                <h5 class="text-white">Secure Platform</h5>
+                <p class="text-secondary small">AES-256 encryption for all user transmissions.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="ai-card text-center">
+                <i class="bi bi-gear ai-icon"></i>
+                <h5 class="text-white">Customizable</h5>
+                <p class="text-secondary small">Adapt AI responses to your specific project needs.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container my-5 py-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h2 class="fw-bold text-white mb-4">Powerful AI Features</h2>
+            <p class="text-secondary mb-4">Nexus integrates cutting-edge models to help you innovate faster than ever before.</p>
+            <ul class="list-unstyled">
+                <li class="mb-3"><i class="bi bi-check-circle-fill text-info me-2"></i> Smart Code & Content Generation</li>
+                <li class="mb-3"><i class="bi bi-check-circle-fill text-info me-2"></i> Context-Aware Neural Responses</li>
+                <li class="mb-3"><i class="bi bi-check-circle-fill text-info me-2"></i> Real-time System Optimization</li>
+                <li class="mb-3"><i class="bi bi-check-circle-fill text-info me-2"></i> Secure Identity Management</li>
+            </ul>
+        </div>
+        <div class="col-md-6 text-center">
+            <div class="p-2 border border-secondary border-opacity-10 rounded-4">
+                <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485" class="img-fluid rounded-4 shadow-lg" alt="AI Core">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container my-5 py-5">
+    <h2 class="fw-bold text-white text-center mb-5">Intelligence Modules</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="ai-card interactive" onclick="navigateTo('code-assistant')">
+                <i class="bi bi-code-slash ai-icon"></i>
+                <h5 class="text-white">Code Assistant</h5>
+                <p class="text-secondary small">Neural debugging and boilerplate generation.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="ai-card interactive" onclick="navigateTo('study-guide')">
+                <i class="bi bi-mortarboard ai-icon"></i>
+                <h5 class="text-white">Study Guide</h5>
+                <p class="text-secondary small">Personalized learning paths and topic synthesis.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="ai-card interactive" onclick="navigateTo('content-writing')">
+                <i class="bi bi-pencil-square ai-icon"></i>
+                <h5 class="text-white">Content Writing</h5>
+                <p class="text-secondary small">Professional linguistic modeling for creative copy.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container mb-5">
+    <div class="access-hub">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-4">
+                <h3 class="fw-bold text-white">Control Center</h3>
+                <p class="text-secondary small">Manage your profile or contact the core team.</p>
+            </div>
+            <div class="col-lg-4">
+                <a href="profile.html" class="hub-link">
+                    <h5 class="text-white mb-2"><i class="bi bi-person-badge me-2"></i> Profile</h5>
+                    <p class="text-secondary small mb-0">Identity & Credentials</p>
+                </a>
+            </div>
+            <div class="col-lg-4">
+                <a href="contact.html" class="hub-link">
+                    <h5 class="text-white mb-2"><i class="bi bi-headset me-2"></i> Support</h5>
+                    <p class="text-secondary small mb-0">Direct Transmission</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="text-center py-5">
+    <p class="text-secondary small">© 2026 NEXUS AI • Built for the Future of Tech</p>
+</footer>
+
+<div id="loginCircle" class="login-circle" onclick="toggleLogin()">
+    <i class="bi bi-person"></i>
+</div>
+
+<script>
+    // Security & Personalization
+    if (!localStorage.getItem('token')) window.location.href = 'login.html';
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        const user = localStorage.getItem("username");
+        if (user) {
+            document.getElementById("loginCircle").innerHTML = `<span class="fw-bold">${user[0].toUpperCase()}</span>`;
+        }
+    });
+
+    function navigateTo(id) {
+        localStorage.setItem("activeTool", id.replace('-', ' '));
+        window.location.href = id + ".html";
+    }
+    
+    //MapsToTool function correctly sets the "Active Tool" so the server knows which "Mode" to use:
+
+    function navigateToTool(toolId) {
+    const toolMapping = {
+        'code-assistant': 'Code Assistant',
+        'study-guide': 'Study Guide',
+        'content-writing': 'Content Writing'
+    };
+
+    const activeName = toolMapping[toolId];
+    localStorage.setItem("activeTool", activeName); // Save for the chat page
+    window.location.href = toolId + ".html"; // Go to the specific tool page
+}
+
+    function toggleLogin() {
+        if (confirm("Logout of your session?")) {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
+    }
+</script>
+
+</body>
+</html>

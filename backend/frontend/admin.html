@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus | Admin Intelligence Dashboard</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --bg-dark: #0a0b10;
+            --panel-bg: #161b22;
+            --accent-cyan: #00f2ff;
+            --text-gray: #8b949e;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+        }
+
+        .admin-sidebar {
+            background: var(--panel-bg);
+            border-right: 1px solid #30363d;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            padding: 25px;
+            z-index: 100;
+        }
+
+        .main-content { 
+            margin-left: 250px; 
+            padding: 40px; 
+        }
+
+        .nav-link {
+            color: var(--text-gray);
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            transition: 0.3s;
+        }
+
+        .nav-link.active {
+            color: var(--accent-cyan);
+            background: rgba(0, 242, 255, 0.05);
+        }
+
+        .stat-card {
+            background: var(--panel-bg);
+            border: 1px solid #30363d;
+            border-radius: 16px;
+            padding: 25px;
+            height: 100%;
+        }
+
+        .pulse-live {
+            width: 10px; height: 10px;
+            background: #238636;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px #238636;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        .nexus-table { color: var(--text-gray) !important; }
+        .nexus-table thead th { color: white; border-bottom: 2px solid #30363d; }
+    </style>
+</head>
+<body>
+
+<script>
+    // Security Gate
+    if (localStorage.getItem("role") !== "admin") {
+        window.location.href = "login.html";
+    }
+</script>
+
+<div class="container-fluid p-0">
+    <div class="row g-0">
+        
+        <aside class="admin-sidebar">
+            <h4 class="mb-5 text-info fw-bold"><i class="bi bi-shield-lock"></i> NEXUS CORE</h4>
+            
+            <div class="mb-4">
+                <label class="small text-secondary mb-2">Filter Node</label>
+                <select id="userSelector" class="form-select bg-dark text-white border-secondary" onchange="filterDataByNode()">
+                    <option value="all">Global Overview</option>
+                </select>
+            </div>
+
+            <nav>
+                <a class="nav-link active" href="index.html"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a>
+                <a class="nav-link text-danger mt-5" href="#" onclick="logout()"><i class="bi bi-power me-2"></i> Terminate</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="d-flex justify-content-between align-items-center mb-5">
+                <div>
+                    <h2 class="fw-bold">System Intelligence</h2>
+                    <p class="text-secondary small">Real-time MongoDB Data Feed</p>
+                </div>
+                <div class="text-end">
+                    <span class="pulse-live"></span> <span class="text-success small fw-bold">ONLINE</span>
+                    <div class="small text-secondary mt-1" id="currentTime"></div>
+                </div>
+            </header>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <small class="text-secondary">Total Users</small>
+                        <div id="totalUsers" class="fs-2 fw-bold text-info">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <small class="text-secondary">AI Queries</small>
+                        <div id="totalQueries" class="fs-2 fw-bold text-primary">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <small class="text-secondary">Uptime</small>
+                        <div class="fs-2 fw-bold text-success">99.9%</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card text-center">
+                        <small class="text-secondary">Support Tickets</small>
+                        <div id="totalTickets" class="fs-2 fw-bold text-warning">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-5">
+                    <div class="stat-card">
+                        <h6 class="mb-4 small fw-bold">TOOL DISTRIBUTION</h6>
+                        <div style="height: 250px;"><canvas id="toolChart"></canvas></div>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <div class="stat-card">
+                        <h6 class="mb-4 small fw-bold">ACTIVITY ANALYTICS</h6>
+                        <div style="height: 250px;"><canvas id="trafficChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card mb-5">
+                <h6 class="mb-4 small fw-bold"><i class="bi bi-cpu me-2"></i>USER ACTIVITY LOGS</h6>
+                <div class="table-responsive">
+                    <table class="table nexus-table align-middle">
+                        <thead><tr><th>User</th><th>Identity</th><th>Tool</th><th>Queries</th></tr></thead>
+                        <tbody id="logTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <h6 class="mb-4 small fw-bold text-warning"><i class="bi bi-envelope me-2"></i>SUPPORT MESSAGES</h6>
+                <div class="table-responsive">
+                    <table class="table nexus-table align-middle">
+                        <thead><tr><th>Sender</th><th>Subject</th><th>Message</th><th>Date</th></tr></thead>
+                        <tbody id="contactTable"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    let globalData = null;
+    let myPieChart = null;
+    let myLineChart = null;
+
+    async function initDashboard() {
+        try {
+            const response = await fetch('http://localhost:5000/api/admin/all-data', {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            const data = await response.json();
+            globalData = data;
+
+            updateUI(data);
+            renderCharts(data.toolStats);
+        } catch (error) {
+            console.error("Connection Error:", error);
+        }
+    }
+
+    function updateUI(data) {
+        document.getElementById('totalUsers').innerText = data.users.length;
+        document.getElementById('totalQueries').innerText = data.logs.reduce((s, l) => s + (l.stats.questionCount || 0), 0);
+        document.getElementById('totalTickets').innerText = data.supportMessages.length;
+
+        const selector = document.getElementById('userSelector');
+        selector.innerHTML = '<option value="all">Global Overview</option>';
+        data.users.forEach(u => {
+            selector.innerHTML += `<option value="${u._id}">${u.username}</option>`;
+        });
+
+        renderLogs(data.logs);
+
+        const contactBody = document.getElementById('contactTable');
+        contactBody.innerHTML = data.supportMessages.map(m => `
+            <tr>
+                <td>${m.name}</td>
+                <td><span class="badge bg-dark border border-info text-info">${m.subject}</span></td>
+                <td class="small text-secondary">${m.message.substring(0, 40)}...</td>
+                <td>${new Date(m.createdAt).toLocaleDateString()}</td>
+            </tr>
+        `).join('');
+    }
+
+    function renderLogs(logs) {
+        const logBody = document.getElementById('logTable');
+        logBody.innerHTML = logs.map(l => {
+            // Handle populated userId object
+            const username = l.userId && typeof l.userId === 'object' ? l.userId.username : 'Guest';
+            const email = l.userId && typeof l.userId === 'object' ? l.userId.email : 'N/A';
+            
+            return `
+                <tr>
+                    <td class="text-white">${username}</td>
+                    <td>${email}</td>
+                    <td><span class="badge bg-secondary">${l.toolUsed}</span></td>
+                    <td class="text-info fw-bold">${l.stats.questionCount}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function filterDataByNode() {
+        const selectedId = document.getElementById('userSelector').value;
+        const filtered = selectedId === 'all' 
+            ? globalData.logs 
+            : globalData.logs.filter(l => l.userId && (l.userId._id === selectedId || l.userId === selectedId));
+        renderLogs(filtered);
+    }
+
+    function renderCharts(stats) {
+        if (myPieChart) myPieChart.destroy();
+        if (myLineChart) myLineChart.destroy();
+
+        const ctxPie = document.getElementById('toolChart').getContext('2d');
+        myPieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(stats),
+                datasets: [{ 
+                    data: Object.values(stats), 
+                    backgroundColor: ['#00f2ff', '#8a2be2', '#3b82f6', '#f59e0b', '#ef4444'], 
+                    borderWidth: 0 
+                }]
+            },
+            options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#8b949e' } } } }
+        });
+
+        const ctxLine = document.getElementById('trafficChart').getContext('2d');
+        myLineChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{ label: 'Usage', data: [10, 25, 45, 30, 60, 80, 55], borderColor: '#00f2ff', tension: 0.4 }]
+            },
+            options: { maintainAspectRatio: false, scales: { y: { display: false }, x: { ticks: { color: '#8b949e' } } } }
+        });
+    }
+
+    function logout() { localStorage.clear(); window.location.href = "login.html"; }
+    setInterval(() => { document.getElementById('currentTime').innerText = new Date().toLocaleString(); }, 1000);
+    window.onload = initDashboard;
+</script>
+</body>
+</html>
